@@ -1,0 +1,1 @@
+drop table exists booking_table;
