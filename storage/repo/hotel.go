@@ -7,6 +7,7 @@ type Hotel struct {
 	PhoneNumber string  `db:"phone_number"`
 	Email       string  `db:"email"`
 	Address     string  `db:"address"`
+	Price       float64 `db:"price"`
 	Rating      float64 `db:"rating"`
 	RoomsCount  int     `db:"rooms_count"`
 }
@@ -24,6 +25,7 @@ type Room struct {
 type RoomsImage struct {
 	Id             int    `db:"id"`
 	RoomId         int    `db:"room_id"`
+	HotelId        int    `db:"hotel_id"`
 	ImageUrl       string `db:"image_url"`
 	SequenceNumber int    `db:"sequence_number"`
 }
@@ -41,6 +43,7 @@ type HotelStorageI interface {
 	AddRoomsImage(roomImage *RoomsImage) (*RoomsImage, error)
 	AddRoom(room *Room) (*Room, error)
 	GetAll(params GetHotelsQuery) (*GetAllsHotelsResult, error)
+	AddHotelImage(roomImage *HotelImage) (*HotelImage, error)
 }
 
 type GetHotelsQuery struct {

@@ -37,16 +37,9 @@ func New(opt *RouterOptions) *gin.Engine {
 	router.Static("/media", "./media")
 	apiV1 := router.Group("/v1")
 
-	// // Category
-	// apiV1.GET("/categories", handlerV1.GetAllCategories)
-	// apiV1.GET("/categories/:id", handlerV1.GetCategory)
-	// apiV1.POST("/categories", handlerV1.AuthMiddleware, handlerV1.CreateCategory)
-	// apiV1.PUT("/categories/:id", handlerV1.AuthMiddleware, handlerV1.UpdateCategory)
-	// apiV1.DELETE("/categories/:id", handlerV1.AuthMiddleware, handlerV1.DeleteCategory)
-
-	// // Like
-	// apiV1.POST("/likes", handlerV1.AuthMiddleware, handlerV1.CreateOrUpdateLike)
-	// apiV1.GET("/likes/user-post", handlerV1.AuthMiddleware, handlerV1.GetLike)
+	// Like
+	apiV1.POST("/likes", handlerV1.AuthMiddleware, handlerV1.CreateOrUpdateLike)
+	apiV1.GET("/likes/user-post", handlerV1.AuthMiddleware, handlerV1.GetLike)
 
 	// User
 	apiV1.POST("/users", handlerV1.CreateUser)
@@ -55,6 +48,10 @@ func New(opt *RouterOptions) *gin.Engine {
 	apiV1.PUT("/users/:id", handlerV1.UpdateUser)
 	apiV1.DELETE("/users/:id", handlerV1.DeleteUser)
 
+	// Order
+	apiV1.POST("/orders", handlerV1.AuthMiddleware, handlerV1.CreateOrder)
+	apiV1.GET("/orders/:id", handlerV1.AuthMiddleware, handlerV1.GetOrder)
+
 	// // Comment
 	// apiV1.GET("/comments", handlerV1.GetAllComment)
 	// apiV1.GET("/comments/:id", handlerV1.GetComment)
@@ -62,21 +59,16 @@ func New(opt *RouterOptions) *gin.Engine {
 	// apiV1.PUT("/comments/:id", handlerV1.AuthMiddleware, handlerV1.UpdateComment)
 	// apiV1.DELETE("/comments/:id", handlerV1.AuthMiddleware, handlerV1.DeleteComment)
 
-	// // Post
-	// apiV1.GET("/posts", handlerV1.GetAllPost)
-	// apiV1.GET("/posts/:id", handlerV1.GetPost)
-	// apiV1.POST("/posts", handlerV1.AuthMiddleware, handlerV1.CreatePost)
-	// apiV1.PUT("/posts/:id", handlerV1.AuthMiddleware, handlerV1.UpdatePost)
-	// apiV1.DELETE("/posts/:id", handlerV1.AuthMiddleware, handlerV1.DeletePost)
-
 	// file upload
-	apiV1.POST("/file-upload", handlerV1.UploadFile)
+	apiV1.POST("/file-upload", handlerV1.AuthMiddleware, handlerV1.UploadFile)
 
 	// hotel
 	apiV1.GET("/hotels", handlerV1.GetAllHotels)
-	apiV1.POST("/hotels", handlerV1.CreateHotel)
+	apiV1.POST("/hotels", handlerV1.AuthMiddleware, handlerV1.CreateHotel)
 	apiV1.GET("/hotels/:id", handlerV1.GetHotel)
-	apiV1.POST("/hotels/add-room", handlerV1.AddRoom)
+	apiV1.POST("/hotels/add-room", handlerV1.AuthMiddleware, handlerV1.AddRoom)
+	apiV1.POST("/hotels/add-rooms-images", handlerV1.AddRoomImage)
+	apiV1.POST("/hotels/add-hotels-images", handlerV1.AddRoomImage)
 
 	// Register
 	apiV1.POST("/auth/register", handlerV1.Register)
@@ -84,7 +76,7 @@ func New(opt *RouterOptions) *gin.Engine {
 	apiV1.POST("/auth/login", handlerV1.Login)
 	apiV1.POST("/auth/forgot-password", handlerV1.ForgotPassword)
 	apiV1.POST("/auth/verify-forgot-password", handlerV1.VerifyForgotPassword)
-	apiV1.POST("/auth/update-password", handlerV1.UpdatePassword)
+	apiV1.POST("/auth/update-password", handlerV1.AuthMiddleware, handlerV1.UpdatePassword)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -42,11 +43,13 @@ func (h *handlerV1) GetHotel(c *gin.Context) {
 		PhoneNumber: resp.PhoneNumber,
 		Email:       resp.Email,
 		Address:     resp.Address,
+		Price:       resp.Price,
 		Rating:      resp.Rating,
 		RoomsCount:  resp.RoomsCount,
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /hotels [post]
 // @Summary Create a Hotel
 // @Description Create a Hotel
@@ -68,6 +71,19 @@ func (h *handlerV1) CreateHotel(c *gin.Context) {
 		})
 		return
 	}
+	payload, err := h.GetAuthPayload(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+	if (payload.UserType != "superadmin" || payload.UserType != "admin") && payload.UserType == "user" {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error: errors.New("you don't create hotel").Error(),
+		})
+		return
+	}
 
 	resp, err := h.storage.Hotel().Create(&repo.Hotel{
 		Name:        req.Name,
@@ -83,17 +99,19 @@ func (h *handlerV1) CreateHotel(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, models.CreateHotel{
+	c.JSON(http.StatusCreated, models.Hotel{
 		Name:        resp.Name,
 		ImageUrl:    resp.ImageUrl,
 		Address:     resp.Address,
 		Rating:      resp.Rating,
+		Price:       resp.Price,
 		Email:       resp.Email,
 		PhoneNumber: resp.PhoneNumber,
 		RoomsCount:  resp.RoomsCount,
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /hotels/add-room [post]
 // @Summary Add a room
 // @Description Add a room
@@ -112,6 +130,19 @@ func (h *handlerV1) AddRoom(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
 			Error: err.Error(),
+		})
+		return
+	}
+	payload, err := h.GetAuthPayload(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+	if (payload.UserType != "superadmin" || payload.UserType != "admin") && payload.UserType == "user" {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error: errors.New("you don't create hotel").Error(),
 		})
 		return
 	}
@@ -139,6 +170,92 @@ func (h *handlerV1) AddRoom(c *gin.Context) {
 		RoomType:         resp.RoomType,
 		PriceForChildren: resp.PriceForChildren,
 		PriceForAdults:   resp.PriceForAdults,
+	})
+}
+
+// @Router /hotels/add-rooms-images [post]
+// @Summary Add a rooms Images
+// @Description Add a rooms Images
+// @Tags hotels
+// @Accept json
+// @Produce json
+// @Param AddRoomImage body models.CreateAddRoomImage true "AddRoomImage"
+// @Success 201 {object} models.AddRoomImage
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+func (h *handlerV1) AddRoomImage(c *gin.Context) {
+	var (
+		req models.CreateAddRoomImage
+	)
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	resp, err := h.storage.Hotel().AddRoomsImage(&repo.RoomsImage{
+		RoomId:         req.RoomId,
+		HotelId:        req.HotelId,
+		ImageUrl:       req.ImageUrl,
+		SequenceNumber: req.SequenceNumber,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, models.AddRoomImage{
+		Id:             resp.Id,
+		RoomId:         resp.RoomId,
+		HotelId:        resp.HotelId,
+		ImageUrl:       resp.ImageUrl,
+		SequenceNumber: resp.SequenceNumber,
+	})
+}
+
+// @Router /hotels/add-hotels-images [post]
+// @Summary Add a hotels Images
+// @Description Add a hotels Images
+// @Tags hotels
+// @Accept json
+// @Produce json
+// @Param CreateAddHotelImage body models.CreateAddHotelImage true "CreateAddHotelImage"
+// @Success 201 {object} models.AddHoltelImage
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+func (h *handlerV1) AddHotelImage(c *gin.Context) {
+	var (
+		req models.CreateAddHotelImage
+	)
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	resp, err := h.storage.Hotel().AddHotelImage(&repo.HotelImage{
+		HotelId:        req.HotelId,
+		ImageUrl:       req.ImageUrl,
+		SequenceNumber: req.SequenceNumber,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, models.AddHoltelImage{
+		Id:             resp.Id,
+		HotelId:        resp.HotelId,
+		ImageUrl:       resp.ImageUrl,
+		SequenceNumber: resp.SequenceNumber,
 	})
 }
 
@@ -197,7 +314,7 @@ func HotelsParams(c *gin.Context) (*models.GetAllHotelsParams, error) {
 	}
 
 	if c.Query("sort_by_price") != "" &&
-		(c.Query("sort_by_price") == "desc" || c.Query("sort_by_price") == "asc" || c.Query("sort_by_price") == "none") {
+		(c.Query("sort_by_price") == "desc" || c.Query("sort_by_price") == "asc" || c.Query("sort_by_price") == "") {
 		sortByPrice = c.Query("sort_by_price")
 	}
 

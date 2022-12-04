@@ -7,18 +7,17 @@ type Hotel struct {
 	Address     string  `json:"address"`
 	Rating      float64 `json:"rating"`
 	Email       string  `json:"email"`
+	Price       float64 `json:"price"`
 	PhoneNumber string  `json:"phone_number"`
 	RoomsCount  int     `json:"rooms_count"`
 }
 
 type CreateHotel struct {
-	Name        string  `json:"name"`
-	ImageUrl    string  `json:"image_url"`
-	Address     string  `json:"address"`
-	Rating      float64 `json:"rating"`
-	Email       string  `json:"email"`
-	PhoneNumber string  `json:"phone_number"`
-	RoomsCount  int     `json:"rooms_count"`
+	Name        string `json:"name"`
+	ImageUrl    string `json:"image_url"`
+	Address     string `json:"address"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phone_number"`
 }
 
 type Room struct {
@@ -38,6 +37,33 @@ type AddRoom struct {
 	RoomType         string  `json:"room_type"`
 	PriceForChildren float64 `json:"price_for_children"`
 	PriceForAdults   float64 `json:"price_for_adults"`
+}
+
+type AddRoomImage struct {
+	Id             int    `json:"id"`
+	HotelId        int    `json:"hotel_id"`
+	RoomId         int    `json:"room_id"`
+	ImageUrl       string `json:"room_url"`
+	SequenceNumber int    `json:"sequence_number"`
+}
+
+type AddHoltelImage struct {
+	Id             int    `json:"id"`
+	HotelId        int    `json:"hotel_id"`
+	ImageUrl       string `json:"room_url"`
+	SequenceNumber int    `json:"sequence_number"`
+}
+type CreateAddHotelImage struct {
+	HotelId        int    `json:"hotel_id"`
+	ImageUrl       string `json:"room_url"`
+	SequenceNumber int    `json:"sequence_number"`
+}
+
+type CreateAddRoomImage struct {
+	HotelId        int    `json:"hotel_id"`
+	RoomId         int    `json:"room_id"`
+	ImageUrl       string `json:"room_url"`
+	SequenceNumber int    `json:"sequence_number"`
 }
 
 type GetAllHotelsParams struct {

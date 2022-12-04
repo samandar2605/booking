@@ -24,7 +24,7 @@ func (hr *hotelRepo) Create(h *repo.Hotel) (*repo.Hotel, error) {
 			image_url,
 			address
 		)values($1,$2,$3,$4,$5)
-		RETURNING id,rooms_count
+		RETURNING id,rooms_count,price
 	`
 
 	row := hr.db.QueryRow(
@@ -39,6 +39,7 @@ func (hr *hotelRepo) Create(h *repo.Hotel) (*repo.Hotel, error) {
 	if err := row.Scan(
 		&h.Id,
 		&h.RoomsCount,
+		&h.Price,
 	); err != nil {
 		return nil, err
 	}
@@ -68,7 +69,7 @@ func (hr *hotelRepo) AddRoom(room *repo.Room) (*repo.Room, error) {
 		room.PriceForAdults,
 	)
 
-	_, err := hr.db.Exec("update hotels set rooms_count=rooms_count+1 where id=$1", room.HotelId)
+	_, err := hr.db.Exec("update hotels set rooms_count=rooms_count+1,price=(select min(price_for_adults) from rooms where hotel_id=$1) where id=$2", room.HotelId, room.HotelId)
 	if err != nil {
 		return nil, err
 	}
@@ -83,14 +84,41 @@ func (hr *hotelRepo) AddRoomsImage(roomImage *repo.RoomsImage) (*repo.RoomsImage
 	query := `
 		insert into room_images(
 			room_id,
+			hotel_id,
+			image_url,
+			sequence_number
+		)values($1,$2,$3,$4)
+		returning id
+	`
+
+	row := hr.db.QueryRow(
+		query,
+		roomImage.RoomId,
+		roomImage.HotelId,
+		roomImage.ImageUrl,
+		roomImage.SequenceNumber,
+	)
+
+	if err := row.Scan(&roomImage.Id); err != nil {
+		return nil, err
+	}
+
+	return roomImage, nil
+}
+
+func (hr *hotelRepo) AddHotelImage(roomImage *repo.HotelImage) (*repo.HotelImage, error) {
+	query := `
+		insert into hotel_images(
+			hotel_id,
 			image_url,
 			sequence_number
 		)values($1,$2,$3)
 		returning id
 	`
+
 	row := hr.db.QueryRow(
 		query,
-		roomImage.RoomId,
+		roomImage.HotelId,
 		roomImage.ImageUrl,
 		roomImage.SequenceNumber,
 	)
@@ -114,12 +142,12 @@ func (hr *hotelRepo) GetHotel(id int) (*repo.Hotel, error) {
 			email,
 			address,
 			rating,
-			(select count(1) from rooms where hotel_id=$1) rooms_count 
-		from hotels where id=$2
+			price,
+			rooms_count
+		from hotels where id=$1
 	`
 	row := hr.db.QueryRow(
 		query,
-		id,
 		id,
 	)
 
@@ -131,6 +159,7 @@ func (hr *hotelRepo) GetHotel(id int) (*repo.Hotel, error) {
 		&hotel.Email,
 		&hotel.Address,
 		&hotel.Rating,
+		&hotel.Price,
 		&hotel.RoomsCount,
 	); err != nil {
 		return nil, err
@@ -151,7 +180,7 @@ func (hr *hotelRepo) GetAll(params repo.GetHotelsQuery) (*repo.GetAllsHotelsResu
 	if params.Search != "" {
 		str := "%" + params.Search + "%"
 		filter += fmt.Sprintf(`
-			and name ILIKE '%s' OR email ILIKE '%s' OR address ILIKE '%s' `, str, str, str)
+			and h.name ILIKE '%s' OR h.email ILIKE '%s' OR h.address ILIKE '%s' `, str, str, str)
 	}
 
 	if params.SortByPrice == "" {
@@ -159,22 +188,24 @@ func (hr *hotelRepo) GetAll(params repo.GetHotelsQuery) (*repo.GetAllsHotelsResu
 	}
 
 	query := `
-		SELECT
+		Select 
 			id,
 			name,
 			image_url,
 			phone_number,
 			email,
+			price,
 			address,
 			rating,
-			(select count(1) from roomswhere hotel_id=$1) as rooms_count
-		from hotels h  INNER JOIN rooms r		
-		` + filter + ` order by r.price_for_adults ` + params.SortByPrice + ` ` + limit
+			rooms_count
+		from hotels ` + filter + ` order by price ` + params.SortByPrice + ` ` + limit
 
 	rows, err := hr.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println(query)
 
 	defer rows.Close()
 	for rows.Next() {
@@ -185,6 +216,7 @@ func (hr *hotelRepo) GetAll(params repo.GetHotelsQuery) (*repo.GetAllsHotelsResu
 			&hotel.ImageUrl,
 			&hotel.PhoneNumber,
 			&hotel.Email,
+			&hotel.Price,
 			&hotel.Address,
 			&hotel.Rating,
 			&hotel.RoomsCount,
@@ -193,7 +225,7 @@ func (hr *hotelRepo) GetAll(params repo.GetHotelsQuery) (*repo.GetAllsHotelsResu
 		}
 		result.Hotels = append(result.Hotels, &hotel)
 	}
-	queryCount := `SELECT count(1) FROM hotel ` + filter
+	queryCount := `SELECT count(1) FROM hotels ` + filter
 	err = hr.db.QueryRow(queryCount).Scan(&result.Count)
 	if err != nil {
 		return nil, err
@@ -201,4 +233,28 @@ func (hr *hotelRepo) GetAll(params repo.GetHotelsQuery) (*repo.GetAllsHotelsResu
 	fmt.Println(result)
 	return &result, nil
 
+}
+
+func (hr *hotelRepo) AddHotelsImage(hotelImage *repo.HotelImage) (*repo.HotelImage, error) {
+	query := `
+		insert into hotel_images(
+			hotel_id,
+			image_url,
+			sequence_number
+		)values($1,$2,$3)
+		returning id
+	`
+
+	row := hr.db.QueryRow(
+		query,
+		hotelImage.HotelId,
+		hotelImage.ImageUrl,
+		hotelImage.SequenceNumber,
+	)
+
+	if err := row.Scan(&hotelImage.Id); err != nil {
+		return nil, err
+	}
+
+	return hotelImage, nil
 }

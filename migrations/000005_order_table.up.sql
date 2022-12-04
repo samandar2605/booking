@@ -1,4 +1,4 @@
-CREATE TABLE if not exists "order"(
+CREATE TABLE if not exists "orders"(
     "id" serial primary KEY ,
     "hotel_id" INTEGER REFERENCES hotels(id)ON DELETE CASCADE,
     "room_id" INTEGER REFERENCES rooms(id)ON DELETE CASCADE,

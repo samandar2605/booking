@@ -1,5 +1,16 @@
 basePath: /v1
 definitions:
+  models.AddHoltelImage:
+    properties:
+      hotel_id:
+        type: integer
+      id:
+        type: integer
+      room_url:
+        type: string
+      sequence_number:
+        type: integer
+    type: object
   models.AddRoom:
     properties:
       hotel_id:
@@ -14,6 +25,19 @@ definitions:
         type: number
       room_type:
         type: string
+    type: object
+  models.AddRoomImage:
+    properties:
+      hotel_id:
+        type: integer
+      id:
+        type: integer
+      room_id:
+        type: integer
+      room_url:
+        type: string
+      sequence_number:
+        type: integer
     type: object
   models.AuthResponse:
     properties:
@@ -40,6 +64,26 @@ definitions:
       username:
         type: string
     type: object
+  models.CreateAddHotelImage:
+    properties:
+      hotel_id:
+        type: integer
+      room_url:
+        type: string
+      sequence_number:
+        type: integer
+    type: object
+  models.CreateAddRoomImage:
+    properties:
+      hotel_id:
+        type: integer
+      room_id:
+        type: integer
+      room_url:
+        type: string
+      sequence_number:
+        type: integer
+    type: object
   models.CreateHotel:
     properties:
       address:
@@ -52,9 +96,33 @@ definitions:
         type: string
       phone_number:
         type: string
-      rating:
-        type: number
-      rooms_count:
+    type: object
+  models.CreateOrUpdateLikeRequest:
+    properties:
+      hotel_id:
+        type: integer
+      status:
+        type: boolean
+    required:
+    - hotel_id
+    type: object
+  models.CreateOrder:
+    properties:
+      adults_count:
+        type: integer
+      children_count:
+        type: integer
+      date_first:
+        type: string
+      date_last:
+        type: string
+      full_name:
+        type: string
+      hotel_id:
+        type: integer
+      room_id:
+        type: integer
+      user_id:
         type: integer
     type: object
   models.CreateUser:
@@ -116,9 +184,22 @@ definitions:
         type: string
       phone_number:
         type: string
+      price:
+        type: number
       rating:
         type: number
       rooms_count:
+        type: integer
+    type: object
+  models.Like:
+    properties:
+      hotel_id:
+        type: integer
+      id:
+        type: integer
+      status:
+        type: boolean
+      user_id:
         type: integer
     type: object
   models.LoginRequest:
@@ -132,6 +213,27 @@ definitions:
     required:
     - email
     - password
+    type: object
+  models.Order:
+    properties:
+      adults_count:
+        type: integer
+      children_count:
+        type: integer
+      date_first:
+        type: string
+      date_last:
+        type: string
+      full_name:
+        type: string
+      hotel_id:
+        type: integer
+      id:
+        type: integer
+      room_id:
+        type: integer
+      user_id:
+        type: integer
     type: object
   models.RegisterRequest:
     properties:
@@ -511,6 +613,36 @@ paths:
       summary: Get Hotel by id
       tags:
       - hotels
+  /hotels/add-hotels-images:
+    post:
+      consumes:
+      - application/json
+      description: Add a hotels Images
+      parameters:
+      - description: CreateAddHotelImage
+        in: body
+        name: CreateAddHotelImage
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAddHotelImage'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.AddHoltelImage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Add a hotels Images
+      tags:
+      - hotels
   /hotels/add-room:
     post:
       consumes:
@@ -541,6 +673,142 @@ paths:
       summary: Add a room
       tags:
       - hotels
+  /hotels/add-rooms-images:
+    post:
+      consumes:
+      - application/json
+      description: Add a rooms Images
+      parameters:
+      - description: AddRoomImage
+        in: body
+        name: AddRoomImage
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAddRoomImage'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.AddRoomImage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Add a rooms Images
+      tags:
+      - hotels
+  /likes:
+    post:
+      consumes:
+      - application/json
+      description: Create or update like
+      parameters:
+      - description: like
+        in: body
+        name: like
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateOrUpdateLikeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Like'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Create or update like
+      tags:
+      - like
+  /likes/user-hotel:
+    get:
+      consumes:
+      - application/json
+      description: Get like by user and hotel
+      parameters:
+      - description: Hotel ID
+        in: query
+        name: hotel_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Like'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get like by user and hotel
+      tags:
+      - like
+  /orders:
+    post:
+      consumes:
+      - application/json
+      description: Create a order
+      parameters:
+      - description: order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateOrder'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Create a order
+      tags:
+      - order
+  /orders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get user by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Order'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get user by id
+      tags:
+      - order
   /users:
     get:
       consumes:

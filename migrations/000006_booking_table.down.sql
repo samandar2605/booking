@@ -1,1 +1,1 @@
-drop table exists booking_table;
+drop table if exists booking_table;

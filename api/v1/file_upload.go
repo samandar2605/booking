@@ -16,6 +16,7 @@ type File struct {
 }
 
 
+// @Security ApiKeyAuth
 // @Router /file-upload [post]
 // @Summary File upload
 // @Description File upload

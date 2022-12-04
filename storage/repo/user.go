@@ -17,17 +17,6 @@ type User struct {
 	CreatedAt       time.Time `db:"created_at"`
 }
 
-type Order struct {
-	Id            int
-	HotelId       int
-	RoomId        int
-	FullName      string
-	DateFirst     time.Time
-	DateLast      time.Time
-	AdultsCount   int
-	ChildrenCount int
-	UserId        int
-}
 
 type UpdatePassword struct {
 	UserID   int64
@@ -44,6 +33,8 @@ type UserStorageI interface {
 	CheckInfo(email, username string) (*User, error)
 	UpdatePassword(req *UpdatePassword) error
 	GetUserProfileInfo(usrId int) (*User, error)
+
+
 }
 
 type GetUserQuery struct {

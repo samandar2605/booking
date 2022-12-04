@@ -397,6 +397,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/hotels/add-hotels-images": {
+            "post": {
+                "description": "Add a hotels Images",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hotels"
+                ],
+                "summary": "Add a hotels Images",
+                "parameters": [
+                    {
+                        "description": "CreateAddHotelImage",
+                        "name": "CreateAddHotelImage",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateAddHotelImage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.AddHoltelImage"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/hotels/add-room": {
             "post": {
                 "description": "Add a room",
@@ -443,6 +489,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/hotels/add-rooms-images": {
+            "post": {
+                "description": "Add a rooms Images",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hotels"
+                ],
+                "summary": "Add a rooms Images",
+                "parameters": [
+                    {
+                        "description": "AddRoomImage",
+                        "name": "AddRoomImage",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateAddRoomImage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.AddRoomImage"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/hotels/{id}": {
             "get": {
                 "description": "Get Hotel by id",
@@ -470,6 +562,168 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.Hotel"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/likes": {
+            "post": {
+                "description": "Create or update like",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "like"
+                ],
+                "summary": "Create or update like",
+                "parameters": [
+                    {
+                        "description": "like",
+                        "name": "like",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateOrUpdateLikeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Like"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/likes/user-hotel": {
+            "get": {
+                "description": "Get like by user and hotel",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "like"
+                ],
+                "summary": "Get like by user and hotel",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Hotel ID",
+                        "name": "hotel_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Like"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders": {
+            "post": {
+                "description": "Create a order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "order"
+                ],
+                "summary": "Create a order",
+                "parameters": [
+                    {
+                        "description": "order",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Order"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/{id}": {
+            "get": {
+                "description": "Get user by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "order"
+                ],
+                "summary": "Get user by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Order"
                         }
                     },
                     "500": {
@@ -699,6 +953,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.AddHoltelImage": {
+            "type": "object",
+            "properties": {
+                "hotel_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "room_url": {
+                    "type": "string"
+                },
+                "sequence_number": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.AddRoom": {
             "type": "object",
             "properties": {
@@ -719,6 +990,26 @@ const docTemplate = `{
                 },
                 "room_type": {
                     "type": "string"
+                }
+            }
+        },
+        "models.AddRoomImage": {
+            "type": "object",
+            "properties": {
+                "hotel_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "room_id": {
+                    "type": "integer"
+                },
+                "room_url": {
+                    "type": "string"
+                },
+                "sequence_number": {
+                    "type": "integer"
                 }
             }
         },
@@ -760,6 +1051,37 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CreateAddHotelImage": {
+            "type": "object",
+            "properties": {
+                "hotel_id": {
+                    "type": "integer"
+                },
+                "room_url": {
+                    "type": "string"
+                },
+                "sequence_number": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.CreateAddRoomImage": {
+            "type": "object",
+            "properties": {
+                "hotel_id": {
+                    "type": "integer"
+                },
+                "room_id": {
+                    "type": "integer"
+                },
+                "room_url": {
+                    "type": "string"
+                },
+                "sequence_number": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.CreateHotel": {
             "type": "object",
             "properties": {
@@ -777,11 +1099,48 @@ const docTemplate = `{
                 },
                 "phone_number": {
                     "type": "string"
+                }
+            }
+        },
+        "models.CreateOrUpdateLikeRequest": {
+            "type": "object",
+            "required": [
+                "hotel_id"
+            ],
+            "properties": {
+                "hotel_id": {
+                    "type": "integer"
                 },
-                "rating": {
-                    "type": "number"
+                "status": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.CreateOrder": {
+            "type": "object",
+            "properties": {
+                "adults_count": {
+                    "type": "integer"
                 },
-                "rooms_count": {
+                "children_count": {
+                    "type": "integer"
+                },
+                "date_first": {
+                    "type": "string"
+                },
+                "date_last": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "hotel_id": {
+                    "type": "integer"
+                },
+                "room_id": {
+                    "type": "integer"
+                },
+                "user_id": {
                     "type": "integer"
                 }
             }
@@ -877,10 +1236,30 @@ const docTemplate = `{
                 "phone_number": {
                     "type": "string"
                 },
+                "price": {
+                    "type": "number"
+                },
                 "rating": {
                     "type": "number"
                 },
                 "rooms_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Like": {
+            "type": "object",
+            "properties": {
+                "hotel_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "user_id": {
                     "type": "integer"
                 }
             }
@@ -899,6 +1278,38 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 16,
                     "minLength": 6
+                }
+            }
+        },
+        "models.Order": {
+            "type": "object",
+            "properties": {
+                "adults_count": {
+                    "type": "integer"
+                },
+                "children_count": {
+                    "type": "integer"
+                },
+                "date_first": {
+                    "type": "string"
+                },
+                "date_last": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "hotel_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "room_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
