@@ -37,6 +37,3 @@ type GetAllUsersResponse struct {
 	Users []*User `json:"users"`
 	Count int     `json:"count"`
 }
-
-// apiV1.POST("/hotels", handlerV1.AuthMiddleware, handlerV1.CreateHotel)
-	// apiV1.GET("/hotels/:id", handlerV1.GetHotel)

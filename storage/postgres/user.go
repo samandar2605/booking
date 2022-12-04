@@ -21,13 +21,13 @@ func (ur *userRepo) Create(u *repo.User) (*repo.User, error) {
 		INSERT INTO users(
 			first_name,
 			last_name,
-			profile_image_url,
+			profile_image,
 			username,
 			password,
 			email,
 			phone_number,
 			type
-		)values($1,$2,$3,$4,$5,$6,$7,$8,$9)
+		)values($1,$2,$3,$4,$5,$6,$7,$8)
 		RETURNING id,created_at
 	`
 
@@ -61,7 +61,7 @@ func (ur *userRepo) Get(id int) (*repo.User, error) {
 			id,
 			first_name,
 			last_name,
-			profile_image_url,
+			profile_image,
 			username,
 			password,
 			email,
@@ -115,7 +115,7 @@ func (ur *userRepo) GetAll(param repo.GetUserQuery) (*repo.GetAllUsersResult, er
 			id,
 			first_name,
 			last_name,
-			profile_image_url,
+			profile_image,
 			username,
 			password,
 			email,
@@ -133,22 +133,22 @@ func (ur *userRepo) GetAll(param repo.GetUserQuery) (*repo.GetAllUsersResult, er
 
 	defer rows.Close()
 	for rows.Next() {
-		var usr repo.User
+		var user repo.User
 		if err := rows.Scan(
-			&usr.Id,
-			&usr.FirstName,
-			&usr.LastName,
-			&usr.ProfileImageUrl,
-			&usr.UserName,
-			&usr.Password,
-			&usr.PhoneNumber,
-			&usr.Email,
-			&usr.Type,
-			&usr.CreatedAt,
+			&user.Id,
+			&user.FirstName,
+			&user.LastName,
+			&user.ProfileImageUrl,
+			&user.UserName,
+			&user.Password,
+			&user.Email,
+			&user.PhoneNumber,
+			&user.Type,
+			&user.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
-		result.Users = append(result.Users, &usr)
+		result.Users = append(result.Users, &user)
 	}
 	queryCount := `SELECT count(1) FROM users ` + filter
 	err = ur.db.QueryRow(queryCount).Scan(&result.Count)
@@ -164,7 +164,7 @@ func (ur *userRepo) Update(usr *repo.User) (*repo.User, error) {
 		update users set 
 			first_name=$1,
 			last_name=$2,
-			profile_image_url=$3,
+			profile_image=$3,
 			username=$4,
 			password=$5,
 			email=$6,
@@ -215,7 +215,7 @@ func (ur *userRepo) GetByEmail(email string) (*repo.User, error) {
 			id,
 			first_name,
 			last_name,
-			profile_image_url,
+			profile_image,
 			username,
 			password,
 			email,
@@ -266,7 +266,7 @@ func (ur *userRepo) CheckInfo(email, username string) (*repo.User, error) {
 			first_name,
 			last_name,
 			email,
-			profile_image_url
+			profile_image
 		FROM users
 		WHERE email=$1 and username=$2
 	`
@@ -294,7 +294,7 @@ func (ur *userRepo) GetUserProfileInfo(usrId int) (*repo.User, error) {
 			first_name,
 			last_name,
 			email,
-			profile_image_url
+			profile_image
 		FROM users
 		WHERE id=$1
 	`

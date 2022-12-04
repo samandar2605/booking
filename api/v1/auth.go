@@ -179,6 +179,7 @@ func (h *handlerV1) Verify(c *gin.Context) {
 		LastName:    result.LastName,
 		Username:    result.UserName,
 		Email:       result.Email,
+		Password:    result.Password,
 		Type:        result.Type,
 		CreatedAt:   result.CreatedAt,
 		AccessToken: token,
@@ -372,7 +373,7 @@ func (h *handlerV1) VerifyForgotPassword(c *gin.Context) {
 	})
 }
 
-// @Security ApiKeyAuth
+
 // @Router /auth/update-password [post]
 // @Summary Update password
 // @Description Update password

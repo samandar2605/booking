@@ -50,7 +50,7 @@ func (h *handlerV1) GetUser(c *gin.Context) {
 	})
 }
 
-// @Security ApiKeyAuth
+
 // @Router /users [post]
 // @Summary Create a user
 // @Description Create a user
@@ -86,6 +86,7 @@ func (h *handlerV1) CreateUser(c *gin.Context) {
 		Email:     req.Email,
 		Password:  hashedPassword,
 		Type:      req.Type,
+		UserName:  req.Username,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
@@ -203,7 +204,7 @@ func parseuserModel(user *repo.User) models.User {
 	}
 }
 
-// @Security ApiKeyAuth
+
 // @Summary Update a user
 // @Description Update a userss
 // @Tags users
@@ -264,7 +265,7 @@ func (h *handlerV1) UpdateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
-// @Security ApiKeyAuth
+
 // @Summary Delete a User
 // @Description Delete a user
 // @Tags users

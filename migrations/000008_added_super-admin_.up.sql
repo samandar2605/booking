@@ -1,1 +1,1 @@
-insert into users(first_name,username,password,email,type)values('Samandar','Ukan','$2a$10$40Gv/Nh7A3QOjHAONi2fUuQ1xVIk36wLCTH5QSMUIZ9VQOP0LPN9G','samandar2605@gmail.com','superadmin');
+insert into users(first_name,last_name,username,password,email,type)values('Samandar','To`xtayev','Ukan','$2a$10$AT5F7GsR5XBmcs9bJjQM7eXsyy0hWYWzGXMqLYoE6xY79aoMQmIVm','samandar2605@gmail.com','superadmin');

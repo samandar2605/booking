@@ -1,5 +1,20 @@
 basePath: /v1
 definitions:
+  models.AddRoom:
+    properties:
+      hotel_id:
+        type: integer
+      image_url:
+        type: string
+      is_active:
+        type: boolean
+      price_for_adults:
+        type: number
+      price_for_children:
+        type: number
+      room_type:
+        type: string
+    type: object
   models.AuthResponse:
     properties:
       access_token:
@@ -37,6 +52,10 @@ definitions:
         type: string
       phone_number:
         type: string
+      rating:
+        type: number
+      rooms_count:
+        type: integer
     type: object
   models.CreateUser:
     properties:
@@ -65,6 +84,15 @@ definitions:
     required:
     - email
     type: object
+  models.GetAllHotelsResponse:
+    properties:
+      count:
+        type: integer
+      hotels:
+        items:
+          $ref: '#/definitions/models.Hotel'
+        type: array
+    type: object
   models.GetAllUsersResponse:
     properties:
       count:
@@ -90,8 +118,6 @@ definitions:
         type: string
       rating:
         type: number
-      room:
-        $ref: '#/definitions/models.Room'
       rooms_count:
         type: integer
     type: object
@@ -123,15 +149,12 @@ definitions:
         maxLength: 16
         minLength: 6
         type: string
-      phone_number:
-        type: string
-      profile_image_url:
-        type: string
       type:
         default: user
         enum:
         - superadmin
         - user
+        - admin
         type: string
       username:
         maxLength: 30
@@ -315,8 +338,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Update password
       tags:
       - auth
@@ -394,12 +415,48 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: File upload
       tags:
       - file-upload
   /hotels:
+    get:
+      consumes:
+      - application/json
+      description: Get all Hotels
+      parameters:
+      - default: 10
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - default: 1
+        in: query
+        name: page
+        required: true
+        type: integer
+      - in: query
+        name: search
+        type: string
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: sort_by_price
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetAllHotelsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get all Hotels
+      tags:
+      - hotels
     post:
       consumes:
       - application/json
@@ -417,7 +474,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Hotel'
+            $ref: '#/definitions/models.CreateHotel'
         "400":
           description: Bad Request
           schema:
@@ -426,8 +483,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Create a Hotel
       tags:
       - hotels
@@ -454,6 +509,36 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Get Hotel by id
+      tags:
+      - hotels
+  /hotels/add-room:
+    post:
+      consumes:
+      - application/json
+      description: Add a room
+      parameters:
+      - description: AddRoom
+        in: body
+        name: AddRoom
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddRoom'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Room'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Add a room
       tags:
       - hotels
   /users:
@@ -521,8 +606,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Create a user
       tags:
       - users
@@ -544,8 +627,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Delete a User
       tags:
       - users
@@ -600,8 +681,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Update a user
       tags:
       - users

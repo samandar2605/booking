@@ -9,7 +9,6 @@ type Hotel struct {
 	Address     string  `db:"address"`
 	Rating      float64 `db:"rating"`
 	RoomsCount  int     `db:"rooms_count"`
-	Room        Room    `db:"room"`
 }
 
 type Room struct {
@@ -38,14 +37,16 @@ type HotelImage struct {
 
 type HotelStorageI interface {
 	Create(h *Hotel) (*Hotel, error)
-	Get(id int) (*Hotel, error)
+	GetHotel(id int) (*Hotel, error)
+	AddRoomsImage(roomImage *RoomsImage) (*RoomsImage, error)
+	AddRoom(room *Room) (*Room, error)
+	GetAll(params GetHotelsQuery) (*GetAllsHotelsResult, error)
 }
 
 type GetHotelsQuery struct {
 	Page        int    `json:"page" db:"page" binding:"required" default:"1"`
 	Limit       int    `json:"limit" db:"limit" binding:"required" default:"10"`
 	Search      string `json:"search"`
-	SortByDate  string `json:"sort_by_date" enums:"asc,desc" default:"desc"`
 	SortByPrice string `json:"sort_by_price" enums:"asc,desc" default:"desc"`
 }
 

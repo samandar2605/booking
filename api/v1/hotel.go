@@ -27,7 +27,7 @@ func (h *handlerV1) GetHotel(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.storage.Hotel().Get(id)
+	resp, err := h.storage.Hotel().GetHotel(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
 			Error: err.Error(),
@@ -44,17 +44,9 @@ func (h *handlerV1) GetHotel(c *gin.Context) {
 		Address:     resp.Address,
 		Rating:      resp.Rating,
 		RoomsCount:  resp.RoomsCount,
-		Room: models.Room{
-			ImageUrl:         resp.Room.ImageUrl,
-			RoomType:         resp.Room.RoomType,
-			IsActive:         resp.Room.IsActive,
-			PriceForChildren: resp.Room.PriceForChildren,
-			PriceForAdults:   resp.Room.PriceForAdults,
-		},
 	})
 }
 
-// @Security ApiKeyAuth
 // @Router /hotels [post]
 // @Summary Create a Hotel
 // @Description Create a Hotel
@@ -62,7 +54,7 @@ func (h *handlerV1) GetHotel(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param Hotel body models.CreateHotel true "Hotel"
-// @Success 201 {object} models.Hotel
+// @Success 201 {object} models.CreateHotel
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 func (h *handlerV1) CreateHotel(c *gin.Context) {
@@ -91,8 +83,7 @@ func (h *handlerV1) CreateHotel(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, models.Hotel{
-		Id:          resp.Id,
+	c.JSON(http.StatusCreated, models.CreateHotel{
 		Name:        resp.Name,
 		ImageUrl:    resp.ImageUrl,
 		Address:     resp.Address,
@@ -101,4 +92,145 @@ func (h *handlerV1) CreateHotel(c *gin.Context) {
 		PhoneNumber: resp.PhoneNumber,
 		RoomsCount:  resp.RoomsCount,
 	})
+}
+
+// @Router /hotels/add-room [post]
+// @Summary Add a room
+// @Description Add a room
+// @Tags hotels
+// @Accept json
+// @Produce json
+// @Param AddRoom body models.AddRoom true "AddRoom"
+// @Success 201 {object} models.Room
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+func (h *handlerV1) AddRoom(c *gin.Context) {
+	var (
+		req models.AddRoom
+	)
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	resp, err := h.storage.Hotel().AddRoom(&repo.Room{
+		HotelId:          req.HotelId,
+		ImageUrl:         req.ImageUrl,
+		IsActive:         req.IsActive,
+		RoomType:         req.RoomType,
+		PriceForChildren: req.PriceForChildren,
+		PriceForAdults:   req.PriceForAdults,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, models.Room{
+		Id:               resp.Id,
+		HotelId:          resp.HotelId,
+		ImageUrl:         resp.ImageUrl,
+		IsActive:         resp.IsActive,
+		RoomType:         resp.RoomType,
+		PriceForChildren: resp.PriceForChildren,
+		PriceForAdults:   resp.PriceForAdults,
+	})
+}
+
+// @Router /hotels [get]
+// @Summary Get all Hotels
+// @Description Get all Hotels
+// @Tags hotels
+// @Accept json
+// @Produce json
+// @Param filter query models.GetAllHotelsParams false "Filter"
+// @Success 200 {object} models.GetAllHotelsResponse
+// @Failure 500 {object} models.ErrorResponse
+func (h *handlerV1) GetAllHotels(c *gin.Context) {
+	req, err := HotelsParams(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+	result, err := h.storage.Hotel().GetAll(repo.GetHotelsQuery{
+		Page:   req.Page,
+		Limit:  req.Limit,
+		Search: req.Search,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, HotelsResponse(result))
+}
+
+func HotelsParams(c *gin.Context) (*models.GetAllHotelsParams, error) {
+	var (
+		limit       int = 10
+		page        int = 1
+		sortByPrice string
+		err         error
+	)
+
+	if c.Query("limit") != "" {
+		limit, err = strconv.Atoi(c.Query("limit"))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if c.Query("page") != "" {
+		page, err = strconv.Atoi(c.Query("page"))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if c.Query("sort_by_price") != "" &&
+		(c.Query("sort_by_price") == "desc" || c.Query("sort_by_price") == "asc" || c.Query("sort_by_price") == "none") {
+		sortByPrice = c.Query("sort_by_price")
+	}
+
+	return &models.GetAllHotelsParams{
+		Page:        page,
+		Limit:       limit,
+		Search:      c.Query("search"),
+		SortByPrice: sortByPrice,
+	}, nil
+}
+func HotelsResponse(data *repo.GetAllsHotelsResult) *models.GetAllHotelsResponse {
+	response := models.GetAllHotelsResponse{
+		Hotels: make([]*models.Hotel, 0),
+		Count:  data.Count,
+	}
+
+	for _, hotel := range data.Hotels {
+		p := parseHotelModel(hotel)
+		response.Hotels = append(response.Hotels, &p)
+	}
+
+	return &response
+}
+
+func parseHotelModel(hotel *repo.Hotel) models.Hotel {
+	return models.Hotel{
+		Id:          hotel.Id,
+		Name:        hotel.Name,
+		ImageUrl:    hotel.ImageUrl,
+		Address:     hotel.Address,
+		Rating:      hotel.Rating,
+		Email:       hotel.Email,
+		PhoneNumber: hotel.PhoneNumber,
+		RoomsCount:  hotel.RoomsCount,
+	}
 }

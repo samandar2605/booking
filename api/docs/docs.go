@@ -138,11 +138,6 @@ const docTemplate = `{
         },
         "/auth/update-password": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Update password",
                 "consumes": [
                     "application/json"
@@ -263,11 +258,6 @@ const docTemplate = `{
         },
         "/file-upload": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "File upload",
                 "consumes": [
                     "application/json"
@@ -305,12 +295,64 @@ const docTemplate = `{
             }
         },
         "/hotels": {
-            "post": {
-                "security": [
+            "get": {
+                "description": "Get all Hotels",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hotels"
+                ],
+                "summary": "Get all Hotels",
+                "parameters": [
                     {
-                        "ApiKeyAuth": []
+                        "type": "integer",
+                        "default": 10,
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "name": "sort_by_price",
+                        "in": "query"
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetAllHotelsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
                 "description": "Create a Hotel",
                 "consumes": [
                     "application/json"
@@ -337,7 +379,53 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Hotel"
+                            "$ref": "#/definitions/models.CreateHotel"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/hotels/add-room": {
+            "post": {
+                "description": "Add a room",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hotels"
+                ],
+                "summary": "Add a room",
+                "parameters": [
+                    {
+                        "description": "AddRoom",
+                        "name": "AddRoom",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AddRoom"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Room"
                         }
                     },
                     "400": {
@@ -452,11 +540,6 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Create a user",
                 "consumes": [
                     "application/json"
@@ -539,11 +622,6 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Update a userss",
                 "consumes": [
                     "application/json"
@@ -589,11 +667,6 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Delete a user",
                 "consumes": [
                     "application/json"
@@ -626,6 +699,29 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.AddRoom": {
+            "type": "object",
+            "properties": {
+                "hotel_id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "price_for_adults": {
+                    "type": "number"
+                },
+                "price_for_children": {
+                    "type": "number"
+                },
+                "room_type": {
+                    "type": "string"
+                }
+            }
+        },
         "models.AuthResponse": {
             "type": "object",
             "properties": {
@@ -681,6 +777,12 @@ const docTemplate = `{
                 },
                 "phone_number": {
                     "type": "string"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "rooms_count": {
+                    "type": "integer"
                 }
             }
         },
@@ -726,6 +828,20 @@ const docTemplate = `{
                 }
             }
         },
+        "models.GetAllHotelsResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "hotels": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Hotel"
+                    }
+                }
+            }
+        },
         "models.GetAllUsersResponse": {
             "type": "object",
             "properties": {
@@ -763,9 +879,6 @@ const docTemplate = `{
                 },
                 "rating": {
                     "type": "number"
-                },
-                "room": {
-                    "$ref": "#/definitions/models.Room"
                 },
                 "rooms_count": {
                     "type": "integer"
@@ -818,18 +931,13 @@ const docTemplate = `{
                     "maxLength": 16,
                     "minLength": 6
                 },
-                "phone_number": {
-                    "type": "string"
-                },
-                "profile_image_url": {
-                    "type": "string"
-                },
                 "type": {
                     "type": "string",
                     "default": "user",
                     "enum": [
                         "superadmin",
-                        "user"
+                        "user",
+                        "admin"
                     ]
                 },
                 "username": {
