@@ -155,7 +155,6 @@ func (ur *userRepo) GetAll(param repo.GetUserQuery) (*repo.GetAllUsersResult, er
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(result)
 	return &result, nil
 }
 

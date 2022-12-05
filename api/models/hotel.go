@@ -10,6 +10,19 @@ type Hotel struct {
 	Price       float64 `json:"price"`
 	PhoneNumber string  `json:"phone_number"`
 	RoomsCount  int     `json:"rooms_count"`
+	Rooms       []*Room `json:"room"`
+}
+
+type HotelAll struct {
+	Id          int     `json:"id"`
+	Name        string  `json:"name"`
+	ImageUrl    string  `json:"image_url"`
+	Address     string  `json:"address"`
+	Rating      float64 `json:"rating"`
+	Email       string  `json:"email"`
+	Price       float64 `json:"price"`
+	PhoneNumber string  `json:"phone_number"`
+	RoomsCount  int     `json:"rooms_count"`
 }
 
 type CreateHotel struct {
@@ -28,6 +41,16 @@ type Room struct {
 	RoomType         string  `json:"room_type"`
 	PriceForChildren float64 `json:"price_for_children"`
 	PriceForAdults   float64 `json:"price_for_adults"`
+}
+type RoomInfo struct {
+	Id               int             `json:"id"`
+	HotelId          int             `json:"hotel_id"`
+	ImageUrl         string          `json:"image_url"`
+	IsActive         bool            `json:"is_active"`
+	RoomType         string          `json:"room_type"`
+	PriceForChildren float64         `json:"price_for_children"`
+	PriceForAdults   float64         `json:"price_for_adults"`
+	Images           []*AddRoomImage `json:"images"`
 }
 
 type AddRoom struct {
@@ -74,6 +97,11 @@ type GetAllHotelsParams struct {
 }
 
 type GetAllHotelsResponse struct {
-	Hotels []*Hotel `json:"hotels"`
-	Count  int      `json:"count"`
+	Hotels []*HotelAll `json:"hotels"`
+	Count  int         `json:"count"`
+}
+
+type GetRoomReq struct {
+	Id      int `json:"id"`
+	HotelId int `json:"hotel_id"`
 }

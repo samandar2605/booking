@@ -10,6 +10,7 @@ type Hotel struct {
 	Price       float64 `db:"price"`
 	Rating      float64 `db:"rating"`
 	RoomsCount  int     `db:"rooms_count"`
+	Room        []Room  `db:"room"`
 }
 
 type Room struct {
@@ -39,11 +40,17 @@ type HotelImage struct {
 
 type HotelStorageI interface {
 	Create(h *Hotel) (*Hotel, error)
-	GetHotel(id int) (*Hotel, error)
-	AddRoomsImage(roomImage *RoomsImage) (*RoomsImage, error)
 	AddRoom(room *Room) (*Room, error)
-	GetAll(params GetHotelsQuery) (*GetAllsHotelsResult, error)
+	AddRoomsImage(roomImage *RoomsImage) (*RoomsImage, error)
 	AddHotelImage(roomImage *HotelImage) (*HotelImage, error)
+	GetHotel(id int) (*Hotel, error)
+	GetRoom(id, hotelId int) (*Room, error)
+	GetAllRooms(id int) ([]*Room, error)
+	GetAllRoomsImage(id, hotelId int) ([]*RoomsImage, error)
+	GetAllHotels(params GetHotelsQuery) (*GetAllsHotelsResult, error)
+	AddHotelsImage(hotelImage *HotelImage) (*HotelImage, error)
+	DeleteHotel(id int) error
+	DeleteRoom(id int) error
 }
 
 type GetHotelsQuery struct {

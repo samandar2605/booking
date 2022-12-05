@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -168,7 +169,118 @@ func (hr *hotelRepo) GetHotel(id int) (*repo.Hotel, error) {
 	return &hotel, nil
 }
 
-func (hr *hotelRepo) GetAll(params repo.GetHotelsQuery) (*repo.GetAllsHotelsResult, error) {
+func (hr *hotelRepo) GetRoom(id, hotelId int) (*repo.Room, error) {
+	var room repo.Room
+
+	query := `
+		SELECT
+			id,
+			hotel_id,
+			image_url,
+			is_active,
+			room_type,
+			price_for_children,
+			price_for_adults
+		from rooms where id=$1 and hotel_id=$2
+	`
+	row := hr.db.QueryRow(
+		query,
+		id,
+		hotelId,
+	)
+
+	if err := row.Scan(
+		&room.Id,
+		&room.HotelId,
+		&room.ImageUrl,
+		&room.IsActive,
+		&room.RoomType,
+		&room.PriceForChildren,
+		&room.PriceForAdults,
+	); err != nil {
+		return nil, err
+	}
+
+	return &room, nil
+}
+
+func (hr *hotelRepo) GetAllRooms(id int) ([]*repo.Room, error) {
+	var Result []*repo.Room
+
+	query := `
+	select 
+		id,
+		hotel_id,
+		image_url,
+		is_active,
+		room_type,
+		price_for_children,
+		price_for_adults
+	from rooms where hotel_id=$1`
+
+	rows, err := hr.db.Query(query, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var room repo.Room
+		if err := rows.Scan(
+			&room.Id,
+			&room.HotelId,
+			&room.ImageUrl,
+			&room.IsActive,
+			&room.RoomType,
+			&room.PriceForChildren,
+			&room.PriceForAdults,
+		); err != nil {
+			return nil, err
+		}
+		Result = append(Result, &room)
+	}
+
+	return Result, nil
+
+}
+
+func (hr *hotelRepo) GetAllRoomsImage(id, hotelId int) ([]*repo.RoomsImage, error) {
+	var Result []*repo.RoomsImage
+
+	query := `
+	select 
+		id,
+		hotel_id,
+		room_id,
+		image_url,
+		sequence_number
+	from room_images where room_id=$1 and hotel_id=$2`
+
+	rows, err := hr.db.Query(query, id, hotelId)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var roomImage repo.RoomsImage
+		if err := rows.Scan(
+			&roomImage.Id,
+			&roomImage.HotelId,
+			&roomImage.RoomId,
+			&roomImage.ImageUrl,
+			&roomImage.SequenceNumber,
+		); err != nil {
+			return nil, err
+		}
+
+		Result = append(Result, &roomImage)
+	}
+	return Result, nil
+
+}
+
+func (hr *hotelRepo) GetAllHotels(params repo.GetHotelsQuery) (*repo.GetAllsHotelsResult, error) {
 	result := repo.GetAllsHotelsResult{
 		Hotels: make([]*repo.Hotel, 0),
 	}
@@ -205,8 +317,6 @@ func (hr *hotelRepo) GetAll(params repo.GetHotelsQuery) (*repo.GetAllsHotelsResu
 		return nil, err
 	}
 
-	fmt.Println(query)
-
 	defer rows.Close()
 	for rows.Next() {
 		var hotel repo.Hotel
@@ -230,7 +340,6 @@ func (hr *hotelRepo) GetAll(params repo.GetHotelsQuery) (*repo.GetAllsHotelsResu
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(result)
 	return &result, nil
 
 }
@@ -257,4 +366,49 @@ func (hr *hotelRepo) AddHotelsImage(hotelImage *repo.HotelImage) (*repo.HotelIma
 	}
 
 	return hotelImage, nil
+}
+
+func (hr *hotelRepo) DeleteHotel(id int) error {
+	query := `
+		delete from hotels
+		where id=$1
+	`
+
+	effect, err := hr.db.Exec(
+		query,
+		id,
+	)
+	if err != nil {
+		return err
+	}
+
+	eff, err := effect.LastInsertId()
+	if eff == 0 {
+		return errors.New("nothing has changed")
+	}
+
+	return err
+}
+
+func (hr *hotelRepo) DeleteRoom(id int) error {
+	query := `
+		delete from rooms
+		where id=$1
+	`
+
+	effect, err := hr.db.Exec(
+		query,
+		id,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	eff, err := effect.LastInsertId()
+	if eff == 0 {
+		return errors.New("nothing has changed")
+	}
+
+	return err
 }

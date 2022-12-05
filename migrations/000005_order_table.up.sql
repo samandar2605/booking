@@ -2,12 +2,12 @@ CREATE TABLE if not exists "orders"(
     "id" serial primary KEY ,
     "hotel_id" INTEGER REFERENCES hotels(id)ON DELETE CASCADE,
     "room_id" INTEGER REFERENCES rooms(id)ON DELETE CASCADE,
-    "full_name" VARCHAR(255) NOT NULL,
-    "date_first" TIMESTAMP WITH TIME ZONE,
-    "date_last" TIMESTAMP WITH TIME ZONE,
+    "date_first" date not NULL,
+    "days" INTEGER NOT NULL default 1,
     "adults_count" INTEGER NOT NULL default 0,
     "children_count" INTEGER NOT NULL default 0,
-    "user_id" INTEGER REFERENCES users(id)ON DELETE CASCADE
+    "user_id" INTEGER REFERENCES users(id)ON DELETE CASCADE,
+    "summa" decimal(18,2)
 );
  
  

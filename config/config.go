@@ -1,8 +1,6 @@
 package config
 
 import (
-	"fmt"
-
 	"github.com/spf13/viper"
 	"github.com/subosito/gotenv"
 )
@@ -38,10 +36,6 @@ func Load(path string) Config {
 
 	Conf := viper.New()
 	Conf.AutomaticEnv()
-	fmt.Println("----------------------------")
-	fmt.Println(Conf.GetString("SMTP_SENDER"))
-	fmt.Println(Conf.GetString("SMTP_PASSWORD"))
-	fmt.Println("<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>")
 	cfg := Config{
 		HttpPort: Conf.GetString("HTTP_PORT"),
 		PostConfig: PostgresConfig{

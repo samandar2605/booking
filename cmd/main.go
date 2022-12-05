@@ -14,7 +14,6 @@ import (
 
 func main() {
 	cfg := config.Load(".")
-
 	psqlUrl := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.PostConfig.Host,
 		cfg.PostConfig.Port,

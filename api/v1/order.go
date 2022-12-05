@@ -1,7 +1,9 @@
 package v1
 
 import (
+	"errors"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/samandar2605/booking/api/models"
@@ -15,7 +17,7 @@ import (
 // @Tags order
 // @Accept json
 // @Produce json
-// @Param order body models.CreateOrder true "order"
+// @Param CreateOrder body models.CreateOrder true "CreateOrder"
 // @Success 201 {object} models.Order
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
@@ -39,11 +41,20 @@ func (h *handlerV1) CreateOrder(c *gin.Context) {
 		return
 	}
 
+	if h.storage.Order().CheckRoom(&repo.Order{
+		RoomId:        req.RoomId,
+		DateFirst:     time.Now(),
+		AdultsCount:   req.AdultsCount,
+		ChildrenCount: req.ChildrenCount,
+		UserId:        payload.UserId,
+	}) {
+		c.JSON(http.StatusBadRequest, errorResponse(errors.New("this room is booked")))
+		return
+	}
+
 	resp, err := h.storage.Order().CreateOrder(&repo.Order{
 		RoomId:        req.RoomId,
-		FullName:      payload.FirstName + ` ` + payload.LastName,
-		DateFirst:     req.DateFirst,
-		DateLast:      req.DateLast,
+		DateFirst:     time.Now(),
 		AdultsCount:   req.AdultsCount,
 		ChildrenCount: req.ChildrenCount,
 		UserId:        payload.UserId,
@@ -58,9 +69,8 @@ func (h *handlerV1) CreateOrder(c *gin.Context) {
 	c.JSON(http.StatusCreated, models.Order{
 		Id:            resp.Id,
 		RoomId:        resp.RoomId,
-		FullName:      resp.FullName,
 		DateFirst:     resp.DateFirst,
-		DateLast:      resp.DateLast,
+		Days:          resp.Days,
 		AdultsCount:   resp.AdultsCount,
 		ChildrenCount: resp.ChildrenCount,
 		UserId:        resp.UserId,
@@ -100,9 +110,8 @@ func parseOrderModel(order *repo.Order) models.Order {
 	return models.Order{
 		Id:            order.Id,
 		RoomId:        order.RoomId,
-		FullName:      order.FullName,
 		DateFirst:     order.DateFirst,
-		DateLast:      order.DateLast,
+		Days:          order.Days,
 		AdultsCount:   order.AdultsCount,
 		ChildrenCount: order.ChildrenCount,
 		UserId:        order.UserId,

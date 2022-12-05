@@ -14,6 +14,6 @@ type LikesDislikesCountsResult struct {
 
 type LikeStorageI interface {
 	CreateOrUpdate(l *Like) error
-	Get(userId, hotelId int) (*Like, error)
-	GetLikesDislikesCount(HotelId int) (LikesDislikesCountsResult, error)
+	Get(UserId, HotelId int) (*Like, error) 
+	GetLikesDislikesCount(HotelId int) (*LikesDislikesCountsResult, error)
 }

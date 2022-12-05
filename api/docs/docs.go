@@ -138,6 +138,11 @@ const docTemplate = `{
         },
         "/auth/update-password": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update password",
                 "consumes": [
                     "application/json"
@@ -258,6 +263,11 @@ const docTemplate = `{
         },
         "/file-upload": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "File upload",
                 "consumes": [
                     "application/json"
@@ -353,6 +363,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a Hotel",
                 "consumes": [
                     "application/json"
@@ -445,6 +460,11 @@ const docTemplate = `{
         },
         "/hotels/add-room": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Add a room",
                 "consumes": [
                     "application/json"
@@ -575,6 +595,11 @@ const docTemplate = `{
         },
         "/likes": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create or update like",
                 "consumes": [
                     "application/json"
@@ -613,9 +638,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/likes/user-hotel": {
+        "/likes/user-post": {
             "get": {
-                "description": "Get like by user and hotel",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get like by user and post",
                 "consumes": [
                     "application/json"
                 ],
@@ -625,12 +655,12 @@ const docTemplate = `{
                 "tags": [
                     "like"
                 ],
-                "summary": "Get like by user and hotel",
+                "summary": "Get like by user and post",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Hotel ID",
-                        "name": "hotel_id",
+                        "description": "Post ID",
+                        "name": "post_id",
                         "in": "query",
                         "required": true
                     }
@@ -653,6 +683,11 @@ const docTemplate = `{
         },
         "/orders": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a order",
                 "consumes": [
                     "application/json"
@@ -666,8 +701,8 @@ const docTemplate = `{
                 "summary": "Create a order",
                 "parameters": [
                     {
-                        "description": "order",
-                        "name": "order",
+                        "description": "CreateOrder",
+                        "name": "CreateOrder",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -710,20 +745,51 @@ const docTemplate = `{
                     "order"
                 ],
                 "summary": "Get user by id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Order"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/rooms": {
+            "post": {
+                "description": "Get room by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hotels"
+                ],
+                "summary": "Get room by id",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
+                        "description": "GetRoomReq",
+                        "name": "GetRoomReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.GetRoomReq"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Order"
+                            "$ref": "#/definitions/models.RoomInfo"
                         }
                     },
                     "500": {
@@ -1125,22 +1191,10 @@ const docTemplate = `{
                 "children_count": {
                     "type": "integer"
                 },
-                "date_first": {
-                    "type": "string"
-                },
-                "date_last": {
-                    "type": "string"
-                },
-                "full_name": {
-                    "type": "string"
-                },
                 "hotel_id": {
                     "type": "integer"
                 },
                 "room_id": {
-                    "type": "integer"
-                },
-                "user_id": {
                     "type": "integer"
                 }
             }
@@ -1196,7 +1250,7 @@ const docTemplate = `{
                 "hotels": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Hotel"
+                        "$ref": "#/definitions/models.HotelAll"
                     }
                 }
             }
@@ -1215,7 +1269,56 @@ const docTemplate = `{
                 }
             }
         },
+        "models.GetRoomReq": {
+            "type": "object",
+            "properties": {
+                "hotel_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.Hotel": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "room": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Room"
+                    }
+                },
+                "rooms_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.HotelAll": {
             "type": "object",
             "properties": {
                 "address": {
@@ -1377,6 +1480,38 @@ const docTemplate = `{
                 },
                 "image_url": {
                     "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "price_for_adults": {
+                    "type": "number"
+                },
+                "price_for_children": {
+                    "type": "number"
+                },
+                "room_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.RoomInfo": {
+            "type": "object",
+            "properties": {
+                "hotel_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AddRoomImage"
+                    }
                 },
                 "is_active": {
                     "type": "boolean"

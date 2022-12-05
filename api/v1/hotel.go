@@ -35,6 +35,19 @@ func (h *handlerV1) GetHotel(c *gin.Context) {
 		})
 		return
 	}
+	result, err := h.storage.Hotel().GetAllRooms(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	var rooms []*models.Room
+	for _, i := range result {
+		room := parseRoom(i)
+		rooms = append(rooms, &room)
+	}
 
 	c.JSON(http.StatusOK, models.Hotel{
 		Id:          resp.Id,
@@ -46,7 +59,84 @@ func (h *handlerV1) GetHotel(c *gin.Context) {
 		Price:       resp.Price,
 		Rating:      resp.Rating,
 		RoomsCount:  resp.RoomsCount,
+		Rooms:       rooms,
 	})
+}
+
+func parseRoom(room *repo.Room) models.Room {
+	return models.Room{
+		Id:               room.Id,
+		HotelId:          room.HotelId,
+		ImageUrl:         room.ImageUrl,
+		IsActive:         room.IsActive,
+		RoomType:         room.RoomType,
+		PriceForChildren: room.PriceForChildren,
+		PriceForAdults:   room.PriceForAdults,
+	}
+}
+
+// @Router /rooms  [post]
+// @Summary Get room by id
+// @Description Get room by id
+// @Tags hotels
+// @Accept json
+// @Produce json
+// @Param GetRoomReq body models.GetRoomReq true "GetRoomReq"
+// @Success 200 {object} models.RoomInfo
+// @Failure 500 {object} models.ErrorResponse
+func (h *handlerV1) GetRoom(c *gin.Context) {
+	var (
+		req models.GetRoomReq
+	)
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	resp, err := h.storage.Hotel().GetRoom(req.Id, req.HotelId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+	result, err := h.storage.Hotel().GetAllRoomsImage(req.Id, req.HotelId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	var images []*models.AddRoomImage
+	for _, i := range result {
+		image := parseImage(i)
+		images = append(images, &image)
+	}
+
+	c.JSON(http.StatusOK, models.RoomInfo{
+		Id:               resp.Id,
+		HotelId:          resp.HotelId,
+		ImageUrl:         resp.ImageUrl,
+		IsActive:         resp.IsActive,
+		RoomType:         resp.RoomType,
+		PriceForChildren: resp.PriceForChildren,
+		PriceForAdults:   resp.PriceForAdults,
+		Images:           images,
+	})
+}
+
+func parseImage(room *repo.RoomsImage) models.AddRoomImage {
+	return models.AddRoomImage{
+		Id:             room.Id,
+		HotelId:        room.HotelId,
+		RoomId:         room.RoomId,
+		ImageUrl:       room.ImageUrl,
+		SequenceNumber: room.SequenceNumber,
+	}
 }
 
 // @Security ApiKeyAuth
@@ -276,7 +366,7 @@ func (h *handlerV1) GetAllHotels(c *gin.Context) {
 		})
 		return
 	}
-	result, err := h.storage.Hotel().GetAll(repo.GetHotelsQuery{
+	result, err := h.storage.Hotel().GetAllHotels(repo.GetHotelsQuery{
 		Page:   req.Page,
 		Limit:  req.Limit,
 		Search: req.Search,
@@ -327,7 +417,7 @@ func HotelsParams(c *gin.Context) (*models.GetAllHotelsParams, error) {
 }
 func HotelsResponse(data *repo.GetAllsHotelsResult) *models.GetAllHotelsResponse {
 	response := models.GetAllHotelsResponse{
-		Hotels: make([]*models.Hotel, 0),
+		Hotels: make([]*models.HotelAll, 0),
 		Count:  data.Count,
 	}
 
@@ -339,8 +429,8 @@ func HotelsResponse(data *repo.GetAllsHotelsResult) *models.GetAllHotelsResponse
 	return &response
 }
 
-func parseHotelModel(hotel *repo.Hotel) models.Hotel {
-	return models.Hotel{
+func parseHotelModel(hotel *repo.Hotel) models.HotelAll {
+	return models.HotelAll{
 		Id:          hotel.Id,
 		Name:        hotel.Name,
 		ImageUrl:    hotel.ImageUrl,

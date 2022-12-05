@@ -112,17 +112,9 @@ definitions:
         type: integer
       children_count:
         type: integer
-      date_first:
-        type: string
-      date_last:
-        type: string
-      full_name:
-        type: string
       hotel_id:
         type: integer
       room_id:
-        type: integer
-      user_id:
         type: integer
     type: object
   models.CreateUser:
@@ -158,7 +150,7 @@ definitions:
         type: integer
       hotels:
         items:
-          $ref: '#/definitions/models.Hotel'
+          $ref: '#/definitions/models.HotelAll'
         type: array
     type: object
   models.GetAllUsersResponse:
@@ -170,7 +162,39 @@ definitions:
           $ref: '#/definitions/models.User'
         type: array
     type: object
+  models.GetRoomReq:
+    properties:
+      hotel_id:
+        type: integer
+      id:
+        type: integer
+    type: object
   models.Hotel:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      name:
+        type: string
+      phone_number:
+        type: string
+      price:
+        type: number
+      rating:
+        type: number
+      room:
+        items:
+          $ref: '#/definitions/models.Room'
+        type: array
+      rooms_count:
+        type: integer
+    type: object
+  models.HotelAll:
     properties:
       address:
         type: string
@@ -283,6 +307,27 @@ definitions:
         type: integer
       image_url:
         type: string
+      is_active:
+        type: boolean
+      price_for_adults:
+        type: number
+      price_for_children:
+        type: number
+      room_type:
+        type: string
+    type: object
+  models.RoomInfo:
+    properties:
+      hotel_id:
+        type: integer
+      id:
+        type: integer
+      image_url:
+        type: string
+      images:
+        items:
+          $ref: '#/definitions/models.AddRoomImage'
+        type: array
       is_active:
         type: boolean
       price_for_adults:
@@ -440,6 +485,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update password
       tags:
       - auth
@@ -517,6 +564,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: File upload
       tags:
       - file-upload
@@ -585,6 +634,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a Hotel
       tags:
       - hotels
@@ -670,6 +721,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Add a room
       tags:
       - hotels
@@ -726,18 +779,20 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create or update like
       tags:
       - like
-  /likes/user-hotel:
+  /likes/user-post:
     get:
       consumes:
       - application/json
-      description: Get like by user and hotel
+      description: Get like by user and post
       parameters:
-      - description: Hotel ID
+      - description: Post ID
         in: query
-        name: hotel_id
+        name: post_id
         required: true
         type: integer
       produces:
@@ -751,7 +806,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      summary: Get like by user and hotel
+      security:
+      - ApiKeyAuth: []
+      summary: Get like by user and post
       tags:
       - like
   /orders:
@@ -760,9 +817,9 @@ paths:
       - application/json
       description: Create a order
       parameters:
-      - description: order
+      - description: CreateOrder
         in: body
-        name: order
+        name: CreateOrder
         required: true
         schema:
           $ref: '#/definitions/models.CreateOrder'
@@ -781,6 +838,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a order
       tags:
       - order
@@ -789,12 +848,6 @@ paths:
       consumes:
       - application/json
       description: Get user by id
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: integer
       produces:
       - application/json
       responses:
@@ -809,6 +862,32 @@ paths:
       summary: Get user by id
       tags:
       - order
+  /rooms:
+    post:
+      consumes:
+      - application/json
+      description: Get room by id
+      parameters:
+      - description: GetRoomReq
+        in: body
+        name: GetRoomReq
+        required: true
+        schema:
+          $ref: '#/definitions/models.GetRoomReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RoomInfo'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get room by id
+      tags:
+      - hotels
   /users:
     get:
       consumes:

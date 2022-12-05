@@ -2,7 +2,6 @@ package v1
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -51,7 +50,6 @@ func (m *handlerV1) GetAuthPayload(ctx *gin.Context) (*utils.Payload, error) {
 
 func (h *handlerV1) sendVerificationCode(key, email string) error {
 	code, err := utils.GenerateRandomCode(6)
-	fmt.Println(code)
 	if err != nil {
 		return err
 	}

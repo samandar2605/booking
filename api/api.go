@@ -65,10 +65,11 @@ func New(opt *RouterOptions) *gin.Engine {
 	// hotel
 	apiV1.GET("/hotels", handlerV1.GetAllHotels)
 	apiV1.POST("/hotels", handlerV1.AuthMiddleware, handlerV1.CreateHotel)
-	apiV1.GET("/hotels/:id", handlerV1.GetHotel)
+	apiV1.GET("/hotels/{id}", handlerV1.GetHotel)
+	apiV1.POST("/rooms", handlerV1.GetRoom)
 	apiV1.POST("/hotels/add-room", handlerV1.AuthMiddleware, handlerV1.AddRoom)
 	apiV1.POST("/hotels/add-rooms-images", handlerV1.AddRoomImage)
-	apiV1.POST("/hotels/add-hotels-images", handlerV1.AddRoomImage)
+	apiV1.POST("/hotels/add-hotels-images", handlerV1.AddHotelImage)
 
 	// Register
 	apiV1.POST("/auth/register", handlerV1.Register)
