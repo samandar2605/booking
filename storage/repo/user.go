@@ -16,6 +16,18 @@ type User struct {
 	Type            string    `db:"type"`
 	CreatedAt       time.Time `db:"created_at"`
 }
+const (
+	UserTypeSuperadmin = "superadmin"
+	UserTypeUser       = "user"
+)
+
+type UserProfile struct {
+	Id              int     `json:"id"`
+	FirstName       string  `json:"first_name"`
+	LastName        string  `json:"last_name"`
+	Email           string  `json:"email"`
+	ProfileImageUrl *string `json:"profile_image_url"`
+}
 
 
 type UpdatePassword struct {

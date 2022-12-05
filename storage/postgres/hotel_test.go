@@ -71,3 +71,5 @@ func TestAddRoomImage(t *testing.T) {
 	require.NotEmpty(t, roomImage)
 	require.NoError(t, err)
 }
+
+

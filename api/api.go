@@ -52,12 +52,12 @@ func New(opt *RouterOptions) *gin.Engine {
 	apiV1.POST("/orders", handlerV1.AuthMiddleware, handlerV1.CreateOrder)
 	apiV1.GET("/orders/:id", handlerV1.AuthMiddleware, handlerV1.GetOrder)
 
-	// // Comment
-	// apiV1.GET("/comments", handlerV1.GetAllComment)
-	// apiV1.GET("/comments/:id", handlerV1.GetComment)
-	// apiV1.POST("/comments", handlerV1.AuthMiddleware, handlerV1.CreateComment)
-	// apiV1.PUT("/comments/:id", handlerV1.AuthMiddleware, handlerV1.UpdateComment)
-	// apiV1.DELETE("/comments/:id", handlerV1.AuthMiddleware, handlerV1.DeleteComment)
+	// Comment
+	apiV1.GET("/comments", handlerV1.GetAllComment)
+	apiV1.GET("/comments/:id", handlerV1.GetComment)
+	apiV1.POST("/comments", handlerV1.AuthMiddleware, handlerV1.CreateComment)
+	apiV1.PUT("/comments/:id", handlerV1.AuthMiddleware, handlerV1.UpdateComment)
+	apiV1.DELETE("/comments/:id", handlerV1.AuthMiddleware, handlerV1.DeleteComment)
 
 	// file upload
 	apiV1.POST("/file-upload", handlerV1.AuthMiddleware, handlerV1.UploadFile)

@@ -4,6 +4,14 @@ import (
 	"time"
 )
 
+type UserProfile struct {
+	Id              int     `json:"id"`
+	FirstName       string  `json:"first_name"`
+	LastName        string  `json:"last_name"`
+	Email           string  `json:"email"`
+	ProfileImageUrl *string `json:"profile_image_url"`
+}
+
 type User struct {
 	Id              int       `json:"id"`
 	FirstName       string    `json:"first_name"`

@@ -64,6 +64,23 @@ definitions:
       username:
         type: string
     type: object
+  models.Comment:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      hotel_id:
+        type: integer
+      id:
+        type: integer
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.UserProfile'
+      user_id:
+        type: integer
+    type: object
   models.CreateAddHotelImage:
     properties:
       hotel_id:
@@ -82,6 +99,13 @@ definitions:
       room_url:
         type: string
       sequence_number:
+        type: integer
+    type: object
+  models.CreateComment:
+    properties:
+      description:
+        type: string
+      hotel_id:
         type: integer
     type: object
   models.CreateHotel:
@@ -111,6 +135,10 @@ definitions:
       adults_count:
         type: integer
       children_count:
+        type: integer
+      date_first:
+        type: string
+      days:
         type: integer
       hotel_id:
         type: integer
@@ -143,6 +171,15 @@ definitions:
         type: string
     required:
     - email
+    type: object
+  models.GetAllCommentsResponse:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/models.Comment'
+        type: array
+      count:
+        type: integer
     type: object
   models.GetAllHotelsResponse:
     properties:
@@ -248,14 +285,16 @@ definitions:
         type: string
       date_last:
         type: string
-      full_name:
-        type: string
+      days:
+        type: integer
       hotel_id:
         type: integer
       id:
         type: integer
       room_id:
         type: integer
+      summa:
+        type: number
       user_id:
         type: integer
     type: object
@@ -337,6 +376,19 @@ definitions:
       room_type:
         type: string
     type: object
+  models.UpdateComment:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      hotel_id:
+        type: integer
+      id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
   models.UpdatePasswordRequest:
     properties:
       password:
@@ -365,6 +417,19 @@ definitions:
       type:
         type: string
       username:
+        type: string
+    type: object
+  models.UserProfile:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      profile_image_url:
         type: string
     type: object
   models.VerifyRequest:
@@ -542,6 +607,160 @@ paths:
       summary: Verify forgot password
       tags:
       - auth
+  /comments:
+    get:
+      consumes:
+      - application/json
+      description: Get all comments
+      parameters:
+      - in: query
+        name: hotel_id
+        type: integer
+      - default: 10
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - default: 1
+        in: query
+        name: page
+        required: true
+        type: integer
+      - default: desc
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort_by_date
+        required: true
+        type: string
+      - in: query
+        name: user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetAllCommentsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get all comments
+      tags:
+      - comments
+    post:
+      consumes:
+      - application/json
+      description: Create a comment
+      parameters:
+      - description: comment
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateComment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Comment'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a comment
+      tags:
+      - comments
+  /comments/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a comment
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a comment
+      tags:
+      - comments
+    get:
+      consumes:
+      - application/json
+      description: Get comment by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Comment'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get comment by id
+      tags:
+      - comments
+    put:
+      consumes:
+      - application/json
+      description: Update a comments
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: comment
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateComment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Comment'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a comment
+      tags:
+      - comments
   /file-upload:
     post:
       consumes:
@@ -859,6 +1078,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get user by id
       tags:
       - order

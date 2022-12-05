@@ -21,32 +21,44 @@ func (ur *orderRepo) CreateOrder(order *repo.Order) (*repo.Order, error) {
 			hotel_id,
 			room_id,
 			date_first,
-			days,
+			date_last,
 			adults_count,
 			children_count,
 			user_id
 		)values($1,$2,$3,$4,$5,$6,$7)
-		RETURNING id,(select ($5*price_for_adults)+($6*price_for_children) from rooms where hotel_id=$1 and id=$2)
+		RETURNING id
 	`
+
+	order.DateLast = order.DateFirst.Add(time.Duration(time.Duration(order.Days).Hours()) * 24)
+
 	row := ur.db.QueryRow(
 		query,
 		order.HotelId,
 		order.RoomId,
 		order.DateFirst,
-		order.Days,
+		order.DateLast,
 		order.AdultsCount,
 		order.ChildrenCount,
-		order.UserId)
+		order.UserId,
+	)
 	if err := row.Scan(
 		&order.Id,
-		&order.Summa,
 	); err != nil {
 		return nil, err
 	}
-	_, err := ur.db.Exec("update order set summa=$1 where id=$2", order.Summa, order.Id)
+
+	var PriceForChildren, PriceForAdults float64
+	row = ur.db.QueryRow("select price_for_adults,price_for_children from rooms where id=$1 and hotel_id=$2", order.RoomId, order.HotelId)
+	err := row.Scan(&PriceForAdults, &PriceForChildren)
 	if err != nil {
 		return nil, err
 	}
+
+	_, err = ur.db.Exec("update orders set summa=$1 where id=$2", (PriceForAdults*float64(order.AdultsCount))+(PriceForChildren*float64(order.ChildrenCount)), order.HotelId)
+	if err != nil {
+		return nil, err
+	}
+	order.Summa = (PriceForAdults * float64(order.AdultsCount)) + (PriceForChildren * float64(order.ChildrenCount))
 	return order, nil
 }
 
@@ -59,7 +71,7 @@ func (ur *orderRepo) GetOrder(userId int) ([]*repo.Order, error) {
 			hotel_id,
 			room_id,
 			date_first,
-			days,
+			date_last,
 			adults_count,
 			children_count,
 			user_id,
@@ -80,7 +92,7 @@ func (ur *orderRepo) GetOrder(userId int) ([]*repo.Order, error) {
 			&order.HotelId,
 			&order.RoomId,
 			&order.DateFirst,
-			&order.Days,
+			&order.DateLast,
 			&order.AdultsCount,
 			&order.ChildrenCount,
 			&order.UserId,
@@ -99,13 +111,13 @@ func (ur *orderRepo) CheckRoom(order *repo.Order) bool {
 	query := `
 		select 
 			id
-		from orders where hote_id=$1 and ((date_first<$2 and date_first<$3) or (date_first+interval '$4 days'<$2 and $3<date_first+interval '$4 days') )
+		from orders where hote_id=$1 and ((date_first<$2 and date_first<$3) or (date_last<$2 and $3<date_last) )
 	`
 	rows, err := ur.db.Query(
 		query,
 		order.HotelId,
 		order.DateFirst,
-		order.DateFirst.Add(time.Duration(order.Days)*86400),
+		order.DateFirst.Add(time.Duration(time.Duration(order.Days).Hours())*24),
 		order.Days,
 	)
 	if err != nil {

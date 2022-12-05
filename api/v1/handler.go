@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"errors"
+
 	"github.com/samandar2605/booking/config"
 	"github.com/samandar2605/booking/storage"
 	"github.com/samandar2605/post/api/models"
@@ -11,6 +13,10 @@ type handlerV1 struct {
 	storage  storage.StorageI
 	inMemory storage.InMemoryStorageI
 }
+
+var (
+	ErrForbidden = errors.New("forbidden")
+)
 
 type HandlerV1Options struct {
 	Cfg      *config.Config

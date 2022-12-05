@@ -43,7 +43,10 @@ func (h *handlerV1) CreateOrder(c *gin.Context) {
 
 	if h.storage.Order().CheckRoom(&repo.Order{
 		RoomId:        req.RoomId,
-		DateFirst:     time.Now(),
+		HotelId:       req.HotelId,
+		DateFirst:     req.DateFirst,
+		DateLast:      req.DateFirst.Add(time.Duration(time.Duration(req.Days).Hours()) * 24),
+		Days:          req.Days,
 		AdultsCount:   req.AdultsCount,
 		ChildrenCount: req.ChildrenCount,
 		UserId:        payload.UserId,
@@ -54,7 +57,9 @@ func (h *handlerV1) CreateOrder(c *gin.Context) {
 
 	resp, err := h.storage.Order().CreateOrder(&repo.Order{
 		RoomId:        req.RoomId,
+		HotelId:       req.HotelId,
 		DateFirst:     time.Now(),
+		Days:          req.Days,
 		AdultsCount:   req.AdultsCount,
 		ChildrenCount: req.ChildrenCount,
 		UserId:        payload.UserId,
@@ -70,13 +75,15 @@ func (h *handlerV1) CreateOrder(c *gin.Context) {
 		Id:            resp.Id,
 		RoomId:        resp.RoomId,
 		DateFirst:     resp.DateFirst,
-		Days:          resp.Days,
+		DateLast:      resp.DateLast,
 		AdultsCount:   resp.AdultsCount,
 		ChildrenCount: resp.ChildrenCount,
 		UserId:        resp.UserId,
+		Summa:         resp.Summa,
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /orders/{id} [get]
 // @Summary Get user by id
 // @Description Get user by id
@@ -110,10 +117,12 @@ func parseOrderModel(order *repo.Order) models.Order {
 	return models.Order{
 		Id:            order.Id,
 		RoomId:        order.RoomId,
+		HotelId:       order.HotelId,
 		DateFirst:     order.DateFirst,
-		Days:          order.Days,
+		DateLast:      order.DateLast,
 		AdultsCount:   order.AdultsCount,
 		ChildrenCount: order.ChildrenCount,
 		UserId:        order.UserId,
+		Summa:         order.Summa,
 	}
 }

@@ -7,6 +7,7 @@ type Order struct {
 	HotelId       int       `json:"hotel_id"`
 	RoomId        int       `json:"room_id"`
 	DateFirst     time.Time `json:"date_first"`
+	DateLast      time.Time `json:"date_last"`
 	Days          int       `json:"days"`
 	AdultsCount   int       `json:"adults_count"`
 	ChildrenCount int       `json:"children_count"`
@@ -15,8 +16,10 @@ type Order struct {
 }
 
 type CreateOrder struct {
-	HotelId       int `json:"hotel_id"`
-	RoomId        int `json:"room_id"`
-	AdultsCount   int `json:"adults_count"`
-	ChildrenCount int `json:"children_count"`
+	HotelId       int       `json:"hotel_id"`
+	RoomId        int       `json:"room_id"`
+	DateFirst     time.Time `json:"date_first"`
+	Days          int       `json:"days"`
+	AdultsCount   int       `json:"adults_count"`
+	ChildrenCount int       `json:"children_count"`
 }

@@ -190,6 +190,7 @@ func (h *handlerV1) CreateHotel(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, models.Hotel{
+		Id:          resp.Id,
 		Name:        resp.Name,
 		ImageUrl:    resp.ImageUrl,
 		Address:     resp.Address,

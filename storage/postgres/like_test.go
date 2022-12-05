@@ -8,13 +8,14 @@ import (
 )
 
 func createLike(t *testing.T) (repo.Like, error) {
+	u := createUser(t)
+	h := createHotel(t)
 	like := repo.Like{
-		UserId: 1,
-		HotelId: 1,
-		Status: true,
+		UserId:  u.Id,
+		HotelId: h.Id,
+		Status:  true,
 	}
 	err := strg.Like().CreateOrUpdate(&like)
-
 	return like, err
 }
 func TestGetLike(t *testing.T) {
@@ -27,9 +28,9 @@ func TestGetLike(t *testing.T) {
 
 func TestCreateLike(t *testing.T) {
 	err := strg.Like().CreateOrUpdate(&repo.Like{
-		UserId: 1,
+		UserId:  1,
 		HotelId: 1,
-		Status: true,
+		Status:  true,
 	})
 	require.NoError(t, err)
 }
@@ -41,7 +42,9 @@ func TestDeleteLike(t *testing.T) {
 }
 
 func TestGetAllInfo(t *testing.T) {
-	result, err := strg.Like().GetLikesDislikesCount(1)
+	l, err := createLike(t)
 	require.NoError(t, err)
+	result, err := strg.Like().GetLikesDislikesCount(l.HotelId)
 	require.NotEmpty(t, result)
+	require.NoError(t, err)
 }

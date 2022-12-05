@@ -292,7 +292,7 @@ func (hr *hotelRepo) GetAllHotels(params repo.GetHotelsQuery) (*repo.GetAllsHote
 	if params.Search != "" {
 		str := "%" + params.Search + "%"
 		filter += fmt.Sprintf(`
-			and h.name ILIKE '%s' OR h.email ILIKE '%s' OR h.address ILIKE '%s' `, str, str, str)
+			and name ILIKE '%s' OR email ILIKE '%s' OR address ILIKE '%s' `, str, str, str)
 	}
 
 	if params.SortByPrice == "" {

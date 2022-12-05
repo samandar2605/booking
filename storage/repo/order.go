@@ -7,6 +7,7 @@ type Order struct {
 	HotelId       int
 	RoomId        int
 	DateFirst     time.Time
+	DateLast      time.Time
 	Days          int
 	AdultsCount   int
 	ChildrenCount int
