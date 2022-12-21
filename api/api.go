@@ -3,6 +3,8 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/gin-contrib/cors"
+
 	_ "github.com/samandar2605/booking/api/docs" // for swagger
 	v1 "github.com/samandar2605/booking/api/v1"
 	"github.com/samandar2605/booking/config"
@@ -20,7 +22,6 @@ type RouterOptions struct {
 // @title           Swagger for blog api
 // @version         1.0
 // @description     This is a blog service api.
-// @host      		localhost:8000
 // @BasePath  		/v1
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
@@ -28,6 +29,12 @@ type RouterOptions struct {
 // @Security ApiKeyAuth
 func New(opt *RouterOptions) *gin.Engine {
 	router := gin.Default()
+
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowCredentials = true
+	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "*")
+	router.Use(cors.New(corsConfig))
 
 	handlerV1 := v1.New(&v1.HandlerV1Options{
 		Cfg:      opt.Cfg,
