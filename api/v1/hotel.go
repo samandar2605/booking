@@ -103,6 +103,7 @@ func (h *handlerV1) GetRoom(c *gin.Context) {
 		})
 		return
 	}
+	
 	result, err := h.storage.Hotel().GetAllRoomsImage(req.Id, req.HotelId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
